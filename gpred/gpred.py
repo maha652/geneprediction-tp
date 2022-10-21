@@ -1,5 +1,4 @@
 import argparse
-from gc import set_debug
 import sys
 import os
 import csv
@@ -111,16 +110,45 @@ def find_stop(stop_regex, sequence, start):
 
 
 def has_shine_dalgarno(shine_regex, sequence, start, max_shine_dalgarno_distance):
-    """Find a shine dalgarno motif before the start codon
-    """
-    pass
+    """find a shine dalgarno motif before the start codon"""
+    start_pos = max(0, start-max_shine_dalgarno_distance)
+    final_pos = (start - 6)
+    res= shine_regex.finditer(sequence, start_pos, start)
+
+    for i in res :
+        if i.end(0) < final_pos :
+            return True
+    return False
+
+
+
 
 def predict_genes(sequence, start_regex, stop_regex, shine_regex, 
                   min_gene_len, max_shine_dalgarno_distance, min_gap):
-    """Predict most probable genes
+    """Predict most probable gene
     """
-    pass
+    position = 0
+    gene_list = []
 
+    while (len(sequence) - position) >= min_gap :
+        position = find_start(start_regex, sequence, position, len(sequence)-1)
+        if position != None :
+            stop = find_stop(stop_regex,sequence,position)
+            if stop != None :
+                if (stop - position) > min_gene_len :
+                    if has_shine_dalgarno(shine_regex, sequence, position, max_shine_dalgarno_distance)== True:
+                        gene_list.append([position + 1, stop + 3])
+                        position = (stop + 2 + min_gap)
+
+                    else :
+                        position = position + 1
+                else :
+                    position = position + 1
+            else :
+                position = position + 1
+    return gene_list
+
+               
 
 def write_genes_pos(predicted_genes_file, probable_genes):
     """Write list of gene positions
@@ -190,7 +218,7 @@ def main():
     # Call to output functions
     #write_genes_pos(args.predicted_genes_file, probable_genes)
     #write_genes(args.fasta_file, sequence, probable_genes, sequence_rc, probable_genes_comp)
-
+ 
 
 
 if __name__ == '__main__':
