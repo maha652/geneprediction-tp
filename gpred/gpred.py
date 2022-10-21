@@ -209,17 +209,27 @@ def main():
     shine_regex = re.compile('A?G?GAGG|GGAG|GG.{1}GG')
     # Arguments
     args = get_arguments()
+    sequence = read_fasta(args.genome_file)
+    probable_genes = predict_genes(sequence, start_regex, stop_regex, shine_regex, args.min_gene_len, args.max_shine_dalgarno_distance, args.min_gap)
     # Let us do magic in 5' to 3'
     
     # Don't forget to uncomment !!!
     # Call these function in the order that you want
     # We reverse and complement
+    sequence_rc = reverse_complement(sequence)
+    probable_genes_rc = predict_genes(sequence_rc, start_regex, stop_regex, shine_regex, args.min_gene_len, args.max_shine_dalgarno_distance, args.min_gap)
+    probable_genes_comp = []
+    for i in range(len(probable_genes_rc)):
+        pos1 = len(sequence)-probable_genes_rc[i][1]
+        pos2 = len(sequence)-probable_genes_rc[i][0]
+        probable_genes_comp.append([pos1, pos2])
     #sequence_rc = reverse_complement(sequence)
     # Call to output functions
     #write_genes_pos(args.predicted_genes_file, probable_genes)
     #write_genes(args.fasta_file, sequence, probable_genes, sequence_rc, probable_genes_comp)
  
-
+    write_genes_pos(args.predicted_genes_file, probable_genes)
+    write_genes(args.fasta_file, sequence, probable_genes, sequence_rc, probable_genes_comp)
 
 if __name__ == '__main__':
     main()
