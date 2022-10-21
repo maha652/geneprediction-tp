@@ -1,4 +1,5 @@
 import argparse
+from gc import set_debug
 import sys
 import os
 import csv
@@ -80,13 +81,34 @@ def read_fasta(fasta_file):
 def find_start(start_regex, sequence, start, stop):
     """Find the start codon
     """
-    pass
+    recherche = start_regex.search(sequence , start , stop )
+    if  not recherche :
+        return None 
+    else :
+        return recherche.start(0)    
+
+
+
+
+
 
 
 def find_stop(stop_regex, sequence, start):
     """Find the stop codon
     """
-    pass
+   
+
+
+
+    recherche_stop = stop_regex.finditer(sequence,start)
+    for i in recherche_stop :
+        
+        if (i.start(0) - start)  % 3 == 0 :
+            return i.start(0)
+
+
+
+
 
 def has_shine_dalgarno(shine_regex, sequence, start, max_shine_dalgarno_distance):
     """Find a shine dalgarno motif before the start codon
