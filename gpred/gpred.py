@@ -62,7 +62,20 @@ def get_arguments():
 def read_fasta(fasta_file):
     """Extract the complete genome sequence as a single string
     """
-    pass
+
+   
+
+    with open(fasta_file, "r") as  monfich:
+        seq = ""
+        for line in monfich:
+            if line.startswith (">") :
+                continue
+            else :
+                seq += line.strip()
+    return seq
+
+
+
 
 def find_start(start_regex, sequence, start, stop):
     """Find the start codon
